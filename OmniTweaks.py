@@ -27,6 +27,14 @@ def withable(elem):
   """
   return hasattr(elem, "__enter__") and hasattr(elem, "__exit__")
 
+def haskey(iter, key):
+  try:
+    iter[key]
+  except IndexError:
+    return False
+  else:
+    return True
+
 # Errors automatic
 
 class MustError(Exception):
@@ -195,6 +203,7 @@ __all__ = [
   "iterable",
   "nextable",
   "withable",
+  "haskey",
   "form",
   "formated",
   "must",
