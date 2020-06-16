@@ -16,7 +16,8 @@ __all__ = [
     "eqand",
     "eqor",
     "hexid",
-    "symbol"
+    "symbol",
+    "present"
 ]
 
 # testing
@@ -356,3 +357,25 @@ class symbol(object):
       self.linked.linked = None
       self.linked = None
     return self
+  
+  def __present__(self, typ=1):
+    if typ == 1:
+      return repr(self)
+    else:
+      return f"::{self.hexid()[2:].upper()}::"
+
+def present(item, *args, **kwargs):
+  if hasattr(item, "__present__"):
+    wait = item.__present__.__code__.co_argcount - 1
+    kwait = item.__present__.__code__.co_varnames
+    cl1 = []
+    cl2 = {}
+    for key in kwargs:
+      if key in kwait:
+        cl2[key] = kwargs[key]
+    for arg in args:
+      if len(cl1) < wait:
+        cl1.append(arg)
+    return item.__present__(*cl1, **cl2)
+  else:
+    return repr(item)
