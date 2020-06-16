@@ -1,3 +1,24 @@
+__all__ = [
+    "iterable",
+    "nextable",
+    "withable",
+    "forable",
+    "awithable",
+    "haskey",
+    "form",
+    "formated",
+    "must",
+    "MustError",
+    "inst",
+    "InstanceError",
+    "isand",
+    "isor",
+    "eqand",
+    "eqor",
+    "hexid",
+    "symbol"
+]
+
 # testing
 def iterable(elem):
   """
@@ -21,11 +42,30 @@ def nextable(elem):
   else:
     return True
 
+def forable(elem):
+  """
+  Returns True if element is able to use in for..in and vice-versa
+  """
+  try:
+    x = iter(elem)
+    next(x)
+  except:
+    return False
+  else:
+    return True
+
 def withable(elem):
   """
   Returns True if element is able to use <with elem as var:> and vice-versa
   """
   return hasattr(elem, "__enter__") and hasattr(elem, "__exit__")
+
+
+def awithable(elem):
+  """
+  Returns True if element is able to use <async with elem as var:> and vice-versa
+  """
+  return hasattr(elem, "__aenter__") and hasattr(elem, "__aexit__")
 
 def haskey(iter, key):
   try:
@@ -73,6 +113,30 @@ def inst(item, *args):
   else:
     return True
 
+# logic
+def isand(elem, *args):
+  for x in args:
+    if not elem is x:
+      return False
+  return True
+
+def isor(elem, *args):
+  for x in args:
+    if elem is x:
+      return True
+  return False
+
+def eqand(elem, *args):
+  for x in args:
+    if not elem == x:
+      return False
+  return True
+
+def eqor(elem, *args):
+  for x in args:
+    if elem == x:
+      return True
+  return False
 
 # Formatting
 def formated(schem, opens="<", closes=">", place="<>", *args, **kwargs):
@@ -196,18 +260,99 @@ class form(object):
   def __floordiv__(self, args):
     return self.format(*args)
 
+def hexid(o):
+  return hex(id(o))
 
+symbolglobals = {}
+class symbol(object):
+  """
+  Unique item
+  """
+  @staticmethod
+  def glob(desc=""):
+    """
+    Creates global symbol. 1 definition creates new symbol, but next just return existant
+    """
+    if desc in symbolglobals:
+      return symbolglobals[desc]
+    else:
+      symbolglobals[desc] = symbol(desc)
+      return symbolglobals[desc]
+  description = ""
+  linked = None
+  @property
+  def desc(self):
+    return self.description
+  @desc.setter
+  def desc(self, val):
+    self.description = str(val)
+  @desc.deleter
+  def desc(self):
+    self.description = ""
 
+  def __init__(self, desc=""):
+    self.description = str(desc)
+    self.linked = None
+  
+  def __repr__(self):
+    v = "--" if self.description == "" else self.description
+    return f"::{v}::"
+  
+  def __str__(self):
+    v = "--" if self.description == "" else self.description
+    return f"::{v}::"
+  
+  def id(self):
+    return id(self)
+  
+  def hexid(self):
+    return hex(id(self))
+  
+  def __hash__(self):
+    return id(self)
+  
+  def __int__(self):
+    return id(self)
+  
+  def __float__(self):
+    return float(id(self))
+  
+  def __complex__(self):
+    return float(id(self))
+  
+  def __bool__(self):
+    return True
+  
+  def __call__(self):
+    if self.linked:
+      return self.linked
+    else:
+      return self
+  
+  def __eq__(self, other):
+    return id(self) == id(other)
+  
+  def comp(self, other):
+    if not type(other) is symbol:
+      return False
+    elif self.linked == None:
+      return id(self) == id(other)
+    else:
+      return id(self) == id(other) or id(self.linked) == id(other)
 
-__all__ = [
-  "iterable",
-  "nextable",
-  "withable",
-  "haskey",
-  "form",
-  "formated",
-  "must",
-  "MustError",
-  "inst",
-  "InstanceError"
-]
+  def __ne__(self, other):
+    return id(self) != id(other)
+  
+  def link(self, sym):
+    if not type(sym) is symbol:
+      raise TypeError("You can link 2 symbols only")
+    self.unlink()
+    self.linked = sym
+    sym.linked = self
+    return self
+  
+  def unlink(self):
+    if self.linked != None:
+      self.linked.linked = None
+      self.linked = None
+    return self
