@@ -325,7 +325,7 @@ class symbol(object):
         return hex(id(self))
     
     def __hash__(self):
-        return id(self)
+        return hash(id(self))
     
     def __int__(self):
         return id(self)
