@@ -91,6 +91,15 @@ def haskey(iter, key):
     else:
         return True
 
+
+def haslen(item):
+    try:
+        len(item)
+    except (TypeError, AttributeError):
+        return False
+    else:
+        return True
+
 # Errors automatic
 
 class MustError(Exception):
