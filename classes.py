@@ -1,3 +1,4 @@
+import re
 def iterable(elem):
   """
   Returns True if element is iterable and vice-versa
@@ -133,3 +134,96 @@ class stack(object):
     
     def __present__(self):
         return "[<-> {} <<<]".format(" < ".join(map(repr, self)))
+
+
+def numeric(st):
+    try:
+        float(st)
+    except ValueError:
+        return False
+    else:
+        return True
+
+def parseval(st):
+    if st.lower() == "false":
+        return False
+    elif st.lower() == "true":
+        return True
+    elif numeric(st):
+        x = float(st)
+        if int(x) == x:
+            return int(x)
+        else:
+            return x
+    elif st.startswith("\'") and st.endswith("\'"):
+        return st[1:-1]
+    elif st.startswith("\"") and st.endswith("\""):
+        return st[1:-1]
+    else:
+        return st
+
+class Cmd(object):
+    signal = "/"
+    def __init__(self, txt):
+        if not isinstance(txt, str):
+            raise TypeError("Argument of Cmd constructor must be a string")
+        txt = txt.strip()
+        self.signal = "/"
+        if txt.startswith("//") and not txt.startswith("///"):
+            self.signal = "//"
+        if txt.startswith("//"):
+            txt = re.sub(r"(\s|\n)+", " ", txt[2:].strip())
+        elif txt.startswith("/"):
+            txt = re.sub(r"(\s|\n)+", " ", txt[1:].strip())
+        else:
+            txt = re.sub(r"(\s|\n)+", " ", txt[:].strip())
+        self.body = txt
+        self.command = self.signal + self.body
+        self.type = 0 if self.signal == "/" else 1
+        # --- >>> >>>
+        self.flow = []
+        temp = ""
+        state = "normal"
+        for char in txt:
+            if char == " " and state != "string":
+                if temp == " ":
+                    continue
+                self.flow.append(parseval(temp))
+                temp = ""
+            elif char == "\"" or char == "'":
+                temp += char
+                state = "string" if state != "string" else "normal"
+            else:
+                temp += char
+        after = parseval(temp)
+        if after != "":
+            self.flow.append(after)
+        self.length = len(self.flow)
+        self.key = None if self.length <= 0 else self.flow[0]
+        self.mode = None if self.length <= 1 else self.flow[1]
+        self.args = None if self.length <= 2 else tuple(self.flow[2:])
+    
+    def handle(self, func):
+        "Handler"
+        if callable(func):
+            return func(self)
+        else:
+            return func
+
+    def __repr__(self):
+        return f"CMD '{self.command}'"
+    
+    def __present__(self):
+        return f"CMD '{self.command}'"
+    
+    def __str__(self):
+        return self.command
+    
+    def __len__(self):
+        return self.length
+    
+    def __floordiv__(self, other):
+        return self.handle(other)
+    
+    def __mod__(self, other):
+        return self.handle(other)

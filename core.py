@@ -431,3 +431,5 @@ def parseval(st):
         return form(st)
     elif st.startswith("::") and st.endswith("::"):
         return symbol.glob(st[2:-2])
+    else:
+        return st
