@@ -34,6 +34,19 @@ class Error(Exception):
             for arg in self.args:
                 res += f"Argument: {repr(arg)}\n"
 
+    def txt(self):
+        res = f"[ {self.myclass()} ] - {self.message} - a/k = ({len(self.args)} / {len(self.kwargs)})"
+        if (len(self.args) + len(self.kwargs)) <= 0:
+            return res
+        else:
+            res += "\n"
+        if len(self.args):
+            for arg in self.kwargs:
+                res += f"Kwarg: {arg} > {repr(self.kwargs[arg])}\n"
+        if len(self.args):
+            for arg in self.args:
+                res += f"Argument: {repr(arg)}\n"
+
 class AccessError(Error):
     pass
 
