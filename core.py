@@ -19,7 +19,8 @@ __all__ = [
         "symbol",
         "present",
         "numeric",
-        "parseval"
+        "parseval",
+        "prompt"
 ]
 
 # testing
