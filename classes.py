@@ -162,8 +162,17 @@ def parseval(st):
     else:
         return st
 
+def hardstr(st):
+    if not isinstance(st, str):
+        return str(st)
+    elif not " " in st:
+        return st
+    else:
+        return "\"" + st + "\""
+
 class Cmd(object):
     signal = "/"
+    flags = None
     def __init__(self, txt):
         if not isinstance(txt, str):
             raise TypeError("Argument of Cmd constructor must be a string")
@@ -177,16 +186,21 @@ class Cmd(object):
             txt = re.sub(r"(\s|\n)+", " ", txt[1:].strip())
         else:
             txt = re.sub(r"(\s|\n)+", " ", txt[:].strip())
-        self.body = txt
-        self.command = self.signal + self.body
         self.type = 0 if self.signal == "/" else 1
+        self.flags = None
         # --- >>> >>>
         self.flow = []
         temp = ""
         state = "normal"
         for char in txt:
             if char == " " and state != "string":
-                if temp == " ":
+                if temp == " " or temp == "":
+                    continue
+                if temp.startswith("-"):
+                    if self.flags == None:
+                        self.flags = []
+                    self.flags.append(temp[1:].lower())
+                    temp = ""
                     continue
                 self.flow.append(parseval(temp))
                 temp = ""
@@ -195,9 +209,19 @@ class Cmd(object):
                 state = "string" if state != "string" else "normal"
             else:
                 temp += char
-        after = parseval(temp)
-        if after != "":
-            self.flow.append(after)
+        if temp.startswith("-"):
+            if self.flags == None:
+                self.flags = []
+            self.flags.append(temp[1:].lower())
+            temp = ""
+        else:
+            after = parseval(temp)
+            if after != "":
+                self.flow.append(after)
+        self.body = " ".join(map(hardstr, self.flow))
+        if len(self.flags) > 0:
+            self.body += " " + " ".join(map(lambda x: "-" + x, self.flags))
+        self.command = self.signal + self.body
         self.length = len(self.flow)
         self.key = None if self.length <= 0 else self.flow[0]
         self.mode = None if self.length <= 1 else self.flow[1]
@@ -211,10 +235,10 @@ class Cmd(object):
             return func
 
     def __repr__(self):
-        return f"CMD '{self.command}'"
+        return f"CMD << {self.command}"
     
     def __present__(self):
-        return f"CMD '{self.command}'"
+        return f"CMD << {self.command}"
     
     def __str__(self):
         return self.command

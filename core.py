@@ -433,3 +433,15 @@ def parseval(st):
         return symbol.glob(st[2:-2])
     else:
         return st
+
+def prompt(quest="", allin=None, questender=" :> ", pre="", post="", err="Unallowed input"):
+    if forable(allin):
+        print(str(pre) + f"Allowed: [{', '.join(map(lambda x: repr(x), allin))}]" + str(post))
+        res = input(str(pre) + str(quest) + str(questender) + str(post))
+        if parseval(res) in allin:
+            return parseval(res)
+        else:
+            print(str(pre) + str(err) + "\n" + str(post))
+            return prompt(quest, allin, questender, pre, post, err)
+    else:
+        return parseval(input(str(pre) + str(quest) + str(questender) + str(post)))
