@@ -251,3 +251,59 @@ class Cmd(object):
     
     def __mod__(self, other):
         return self.handle(other)
+
+
+class memo(object):
+    size = 0
+    def __init__(self, size=5):
+        if size < 1:
+            raise ValueError("Memory size to small")
+        self.size = int(size)
+        self.pack = [None for x in range(self.size)]
+    
+    def __repr__(self):
+        return f"MEMO: <<< {' <<< '.join(map(repr, self.pack))} <<<"
+    
+    def __present__(self):
+        return f"MEMO: <<< {' <<< '.join(map(repr, self.pack))} <<<"
+    
+    def __str__(self):
+        return f"<<< {' <<< '.join(map(repr, self.pack))} <<<"
+    
+    def __len__(self):
+        return self.size
+
+    def append(self, val):
+        for x in range(self.size - 1):
+            self.pack[x] = self.pack[x + 1]
+        self.pack[-1] = val
+        return self
+    
+    def push(self, val):
+        for x in range(self.size - 1):
+            self.pack[x] = self.pack[x + 1]
+        self.pack[-1] = val
+        return self
+    
+    def __add__(self, val):
+        for x in range(self.size - 1):
+            self.pack[x] = self.pack[x + 1]
+        self.pack[-1] = val
+        return self
+    
+    def clear(self):
+        for x in range(self.size):
+            self.pack[x] = None
+    
+    def __iter__(self):
+        for val in self.pack:
+            yield val
+    
+    def __getitem__(self, i):
+        if not isinstance(i, int):
+            raise IndexError(
+                "Index must be int instance. 0 - last added element")
+        return self.pack[self.size - 1 - i]
+    
+    def __setitem__(self, i, val):
+        raise AccessError("Changing values in memory do not alowed")
