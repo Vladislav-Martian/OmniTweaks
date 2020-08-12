@@ -285,6 +285,9 @@ class memo(object):
     
     def __len__(self):
         return self.size
+    
+    def __bool__(self):
+        return True
 
     def append(self, val):
         for x in range(self.size - 1):
@@ -320,3 +323,371 @@ class memo(object):
     
     def __setitem__(self, i, val):
         raise AccessError("Changing values in memory do not alowed")
+
+class fold(object):
+    configs = {
+        "initclone": False,
+        "revertconfig": True,
+    }
+    proto = None
+    hiden = False
+
+    @staticmethod
+    def configurate(**kwargs):
+        allows = fold.configs.keys()
+        for key in kwargs:
+            if key in allows and type(kwargs[key]) is bool:
+                fold.configs[key] = kwargs[key]
+
+    def config(self, **kwargs):
+        allows = fold.configs.keys()
+        for key in kwargs:
+            if key in allows and type(kwargs[key]) is bool:
+                fold.configs[key] = kwargs[key]
+    
+    def __init__(self, parent=None, initer={}, hiden=False, default=None, **kwargs):
+        obj = None
+        cs = None
+        self.hiden = hiden
+        self.default = default
+        if fold.configs["revertconfig"]:
+            cs = fold.configs.copy()
+        self.config(**kwargs)
+        if not isinstance(parent, (fold, dict)) and not parent == None:
+            raise ValueError("Wrong-class parent got")
+        if not isinstance(initer, (fold, dict)):
+            raise ValueError("Wrong-class initer got")
+
+        if fold.configs["initclone"]:
+            obj = initer.copy() if type(initer) is dict else initer.____.copy()
+        else:
+            obj = initer if type(initer) is dict else initer.____
+        # ===
+        self.____ = obj
+        self.proto = parent
+        # ===
+        if fold.configs["revertconfig"]:
+            fold.configs = cs
+    
+    def by(self, initer={}, parent=None, hiden=False, default=None, **kwargs):
+        obj = None
+        cs = None
+        self.hiden = hiden
+        self.default = default
+        if fold.configs["revertconfig"]:
+            cs = fold.configs.copy()
+        self.config(**kwargs)
+        if not isinstance(parent, (fold, dict)) and not parent == None:
+            raise ValueError("Wrong-class parent got")
+        if not isinstance(initer, (fold, dict)):
+            raise ValueError("Wrong-class initer got")
+
+        if fold.configs["initclone"]:
+            obj = initer.copy() if type(initer) is dict else initer.____.copy()
+        else:
+            obj = initer if type(initer) is dict else initer.____
+        # ===
+        self.____ = obj
+        self.proto = parent
+        # ===
+        if fold.configs["revertconfig"]:
+            fold.configs = cs
+    
+    def __repr__(self):
+        return f"{self.__class__.__qualname__}: [{'ROOT' if not self.proto else 'Normal'}] Keys:[Own: {self.ownkeyscount()}, Inherited: {self.deepkeyscount()}]"
+    
+    def __str__(self):
+        return f"{self.__class__.__qualname__}: [{'ROOT' if not self.proto else 'Normal'}]"
+    
+    def __len__(self):
+        return len(self.____)
+    
+    def __bool__(self):
+        return True
+    
+    def setproto(self, proto=None):
+        if not isinstance(proto, (fold, dict)) and not proto == None:
+            raise ValueError("Wrong-class proto got")
+        #===
+        self.proto = proto
+    
+    def getproto(self):
+        return self.proto
+
+    def ownkeyscount(self):
+        return len(self.____)
+    
+    def ownkeys(self):
+        return self.____.keys()
+
+    def deepkeyscount(self, *, matchhiden=False):
+        c = 0
+        pos = self.proto
+        hiden = False
+        while pos and isinstance(pos, (fold, dict)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if not hiden:
+                for key in pos:
+                    c += 1
+            pos = pos.proto if type(pos) is fold else None
+        return c
+    
+    def deepkeys(self, *, matchhiden=False):
+        c = []
+        pos = self.proto
+        hiden = False
+        while pos and isinstance(pos, (fold, dict)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if not hiden:
+                for key in pos:
+                    if not key in c:
+                        c.append(key)
+            pos = pos.proto if type(pos) is fold else None
+        return tuple(c)
+    
+    def allkeys(self, *, matchhiden=False):
+        c = []
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (fold, dict)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if not hiden:
+                for key in pos:
+                    if not key in c:
+                        c.append(key)
+            pos = pos.proto if type(pos) is fold else None
+        return tuple(c)
+    
+    def keys(self):
+        return self.____.keys()
+    
+    def values(self):
+        return self.____.values()
+    
+    def items(self):
+        return self.____.items()
+    
+    def deepvalues(self):
+        ak = self.deepkeys()
+        res = []
+        for key in ak:
+            res.append(self.deepget(key))
+        return res
+
+    def deepitems(self):
+        ak = self.deepkeys()
+        res = []
+        for key in ak:
+            res.append((key, self.deepget(key)))
+        return res
+    
+    def allvalues(self):
+        ak = self.allkeys()
+        res = []
+        for key in ak:
+            res.append(self.deepget(key))
+        return res
+
+    def allitems(self):
+        ak = self.allkeys()
+        res = []
+        for key in ak:
+            res.append((key, self.deepget(key)))
+        return res
+    
+    def __iter__(self):
+        for key in self.____:
+            yield key
+    
+    def __contains__(self, o):
+        return self.____.__contains__(o)
+    
+    def force(self, source=None, *args, **kwargs):
+        sou = None
+        if source and isinstance(source, (dict, fold)):
+            sou = source
+        else:
+            sou = kwargs
+        #===
+        for key, val in sou.values():
+            self.____[key] = val
+    
+    def __call__(self, source=None, *args, **kwargs):
+        sou = None
+        if source and isinstance(source, (dict, fold)):
+            sou = source
+        else:
+            sou = kwargs
+        #===
+        for key, val in sou.values():
+            self.____[key] = val
+
+    def ownhas(self, key):
+        return self.____.__contains__(key)
+
+    def deephas(self, key, *, matchhiden=False):
+        pos = self.proto
+        hiden = False
+        while pos and isinstance(pos, (fold, dict)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if not hiden:
+                for keyr in pos:
+                    if keyr == key:
+                        return True
+            pos = pos.proto if type(pos) is fold else None
+        return False
+    
+    def ownset(self, key, val=None):
+        self.____[key] = val
+    def ownedit(self, key, val=None):
+        if key in self.____:
+            self.____[key] = val
+    def ownget(self, key, default=None):
+        if key in self:
+            return self.____[key]
+        return self.default if default == None else default
+    def owndel(self, key):
+        del self.____[key]
+    
+    def __setitem__(self, key, val=None):
+        return self.ownset(key, val)
+
+    def __getitem__(self, key, default=None):
+        return self.ownget(key, default)
+    
+    def __delitem__(self, key):
+        return self.owndel(key)
+    
+    def deepset(self, key, val=None, *, matchhiden=False):
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (dict, fold)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if key in pos and not hiden:
+                pos[key] = val
+                break
+            else:
+                pos = pos.proto
+        self.ownset(key, val)
+
+    def deepget(self, key, default=None, *, matchhiden=False):
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (dict, fold)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if key in pos and not hiden:
+                return pos[key]
+            else:
+                pos = pos.proto
+        return self.default if default == None else default
+    def deepdel(self, key, *, matchhiden=False):
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (dict, fold)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if key in pos and not hiden:
+                del pos[key]
+                return True
+            else:
+                pos = pos.proto
+        return False
+    
+    def allset(self, key, val=None, *, matchhiden=False):
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (dict, fold)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if key in pos and not hiden:
+                pos[key] = val
+                break
+            else:
+                pos = pos.proto
+        self.ownset(key, val)
+
+    def allget(self, key, default=None, *, matchhiden=False):
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (dict, fold)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if key in pos and not hiden:
+                return pos[key]
+            else:
+                pos = pos.proto
+        return self.default if default == None else default
+
+    def alldel(self, key, *, matchhiden=False):
+        pos = self
+        hiden = False
+        while pos and isinstance(pos, (dict, fold)):
+            hiden = pos.hiden if type(pos) is fold else False
+            if key in pos and not hiden:
+                del pos[key]
+                return True
+            else:
+                pos = pos.proto
+        return False
+
+    def setdefault(self, val):
+        self.default = val
+
+    def getdefault(self):
+        return self.default
+    
+    def ownupdate(self, other=None):
+        if other and isinstance(other, (dict, fold)):
+            for key in other:
+                self.____.ownset(key, other[key])
+        raise Error("Wrong-class other got")
+    
+    def deepupdate(self, other=None):
+        if other and isinstance(other, (dict, fold)):
+            for key in other:
+                self.____.deepset(key, other[key])
+        raise Error("Wrong-class other got")
+
+    def update(self, other=None):
+        if other and isinstance(other, (dict, fold)):
+            for key in other:
+                self.____.deepset(key, other[key])
+        raise Error("Wrong-class other got")
+    
+    def ownclear(self):
+        self.____.clear()
+    
+    def clear(self):
+        self.____.clear()
+    
+    def deepclear(self):
+        pos = self.proto
+        while pos and isinstance(pos, (dict, fold)):
+            pos.clear()
+            pos = pos.proto
+    
+    def allclear(self):
+        pos = self
+        while pos and isinstance(pos, (dict, fold)):
+            pos.clear()
+            pos = pos.proto
+    
+    def copy(self):
+        return fold(self.proto, self.____.copy(), self.hiden, self.default)
+
+    def pop(self, key):
+        res = self.ownget(key)
+        self.owndel(key)
+        return res
+    
+    def ownpop(self, key):
+        res = self.ownget(key)
+        self.owndel(key)
+        return res
+    
+    def deeppop(self, key):
+        res = self.deepget(key)
+        self.deepdel(key)
+        return res
+    
+    def allpop(self, key):
+        res = self.allget(key)
+        self.alldel(key)
+        return res
