@@ -20,7 +20,8 @@ __all__ = [
         "present",
         "numeric",
         "parseval",
-        "prompt"
+        "prompt",
+        "core"
 ]
 
 # testing
@@ -446,3 +447,22 @@ def prompt(quest="", allin=None, questender=" :> ", pre="", post="", err="Unallo
             return prompt(quest, allin, questender, pre, post, err)
     else:
         return parseval(input(str(pre) + str(quest) + str(questender) + str(post)))
+
+
+class core(object):
+    'Variation of object with easy way to override atribute set\nUse .attributes(**kwargs) to add new attributes in __init__'
+    def __newattr__(self, name, init=None):
+        super().__setattr__(name, init)
+    
+    def attributes(self, **kwargs):
+        for key, val in kwargs.items():
+            super().__setattr__(key, val)
+
+    def __setattr__(self, key, val):
+        if not key in self.__dict__:
+            try:
+                return self.__attrset__(key, val)
+            except AttributeError:
+                super().__setattr__(key, val)
+        else:
+            super().__setattr__(key, val)
